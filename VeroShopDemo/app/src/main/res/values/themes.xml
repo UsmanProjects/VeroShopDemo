@@ -62,6 +62,7 @@
     </style>
 
     <!-- Title Style -->
+    <style name="TextAppearance.VeroShop" parent="@android:style/TextAppearance" />
     <style name="TextAppearance.VeroShop.Title">
         <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
