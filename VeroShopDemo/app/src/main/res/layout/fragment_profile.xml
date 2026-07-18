@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp">
+
+        <!-- Avatar -->
+        <ImageView
+            android:id="@+id/iv_profile_avatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_profile"
+            android:contentDescription="Profile avatar"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:id="@+id/tv_profile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:text="John Doe" />
+
+        <TextView
+            android:id="@+id/tv_profile_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:text="john@example.com" />
+
+        <TextView
+            android:id="@+id/tv_profile_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:text="+1 555 0000" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_edit_profile"
+            style="@style/Widget.VeroShop.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/edit_profile"
+            android:contentDescription="Edit profile button" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_change_password"
+            style="@style/Widget.VeroShop.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/change_password"
+            android:contentDescription="Change password button" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_profile_settings"
+            style="@style/Widget.VeroShop.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/settings"
+            android:contentDescription="Settings button" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_logout"
+            style="Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/logout"
+            android:textColor="@color/error"
+            app:strokeColor="@color/error"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:contentDescription="Logout button" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

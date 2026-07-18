@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_product_detail"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primary"
+            app:titleTextColor="@color/text_on_primary"
+            app:title="Product Details" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Emoji Display -->
+            <TextView
+                android:id="@+id/tv_product_image_emoji"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:gravity="center"
+                android:textSize="80sp"
+                android:background="@color/primary_light"
+                android:text="🍕"
+                android:contentDescription="Product image" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tv_product_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:text="Product Name" />
+
+                    <ImageButton
+                        android:id="@+id/btn_favorite"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:src="@drawable/ic_favorite_border"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Add to favorites" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_product_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent"
+                    android:text="$0.00" />
+
+                <TextView
+                    android:id="@+id/tv_product_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:text="⭐ 4.5 (128 reviews)" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@color/divider" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/description"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/tv_product_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:lineSpacingMultiplier="1.5"
+                    android:text="Product description." />
+
+                <!-- Quantity Selector -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/quantity"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_decrease_qty"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:padding="0dp"
+                        android:contentDescription="Decrease quantity button" />
+
+                    <TextView
+                        android:id="@+id/tv_quantity"
+                        android:layout_width="52dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:text="1"
+                        android:contentDescription="Quantity value" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_increase_qty"
+                        style="@style/Widget.VeroShop.Button.Primary"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:text="+"
+                        android:textSize="20sp"
+                        android:padding="0dp"
+                        android:contentDescription="Increase quantity button" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_add_to_cart"
+        style="@style/Widget.VeroShop.Button.Primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/add_to_cart"
+        android:contentDescription="Add to cart button" />
+
+</LinearLayout>

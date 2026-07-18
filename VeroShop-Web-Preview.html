@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeroShop Demo — Web Preview</title>
+<style>
+  :root{
+    --primary:#00BFA5; --primary-dark:#00897B; --primary-light:#B2DFDB;
+    --accent:#FF6D00; --accent-light:#FFE0B2;
+    --background:#F5F5F5; --surface:#FFFFFF;
+    --text-primary:#212121; --text-secondary:#757575; --text-hint:#BDBDBD;
+    --text-on-primary:#FFFFFF;
+    --success:#4CAF50; --error:#F44336; --warning:#FF9800; --star:#FFC107;
+    --divider:#E0E0E0;
+  }
+  body.dark{
+    --background:#121212; --surface:#1E1E1E;
+    --text-primary:#FFFFFF; --text-secondary:#BDBDBD; --divider:#333;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,Roboto,"Segoe UI",Arial,sans-serif;
+    background:#37474F; display:flex; justify-content:center; align-items:flex-start;
+    min-height:100vh; padding:24px 12px;
+  }
+  #note{
+    position:fixed; top:8px; left:50%; transform:translateX(-50%);
+    color:#cfd8dc; font-size:12px; text-align:center; z-index:50; opacity:.85;
+  }
+  .phone{
+    width:390px; max-width:100%; height:812px;
+    background:var(--background);
+    border-radius:38px; border:10px solid #111; overflow:hidden;
+    position:relative; box-shadow:0 20px 60px rgba(0,0,0,.5);
+    margin-top:28px;
+  }
+  .notch{
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:150px; height:22px; background:#111; border-radius:0 0 14px 14px; z-index:40;
+  }
+  .screen{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    background:var(--background); overflow-y:auto;
+  }
+  .screen::-webkit-scrollbar{width:0;}
+  /* Toolbar */
+  .toolbar{
+    background:var(--primary); color:var(--text-on-primary);
+    display:flex; align-items:center; gap:8px; padding:14px 12px 12px;
+    font-size:18px; font-weight:600; flex-shrink:0;
+  }
+  .toolbar .back{cursor:pointer; font-size:20px; width:24px; text-align:center;}
+  .content{padding:16px; flex:1;}
+  /* Splash */
+  .splash{
+    background:var(--primary); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; height:100%; color:#fff;
+  }
+  .splash .logo{font-size:64px;}
+  .splash h1{margin:12px 0 4px; font-size:22px;}
+  .splash p{margin:0; opacity:.85; font-size:13px;}
+  .spinner{
+    margin-top:26px; width:28px; height:28px; border-radius:50%;
+    border:3px solid rgba(255,255,255,.4); border-top-color:#fff;
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  /* Welcome */
+  .welcome{display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; padding:32px; text-align:center;}
+  .welcome .logo{font-size:56px; margin-bottom:8px;}
+  .welcome h1{font-size:22px; color:var(--text-primary); margin:8px 0 4px;}
+  .welcome p{color:var(--text-secondary); font-size:14px; margin:0 0 32px;}
+  .welcome .btns{width:100%; display:flex; flex-direction:column; gap:12px;}
+  /* Buttons */
+  .btn{
+    border:none; border-radius:8px; padding:14px; font-size:15px; font-weight:600;
+    cursor:pointer; width:100%;
+  }
+  .btn-primary{background:var(--primary); color:#fff;}
+  .btn-primary:active{background:var(--primary-dark);}
+  .btn-outline{background:transparent; color:var(--primary); border:1.5px solid var(--primary);}
+  .btn-text{background:transparent; color:var(--primary); font-weight:600;}
+  .btn-accent{background:var(--accent); color:#fff;}
+  /* Form fields */
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px; font-weight:600;}
+  .field input, .field select{
+    width:100%; padding:12px; border-radius:8px; border:1.3px solid var(--divider);
+    font-size:14px; background:var(--surface); color:var(--text-primary);
+  }
+  .field input:focus, .field select:focus{outline:none; border-color:var(--primary);}
+  .field .err{color:var(--error); font-size:11px; margin-top:4px; display:none;}
+  .field.invalid input{border-color:var(--error);}
+  .field.invalid .err{display:block;}
+  .checkrow{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-primary); margin-bottom:16px;}
+  .link-row{text-align:center; margin-top:14px; font-size:13px; color:var(--text-secondary);}
+  .link-row a{color:var(--primary); font-weight:600; cursor:pointer; text-decoration:none;}
+  h2.page-title{font-size:20px; color:var(--text-primary); margin:4px 0 2px;}
+  p.page-sub{color:var(--text-secondary); font-size:13px; margin:0 0 20px;}
+  /* Search */
+  .search{
+    background:var(--surface); border-radius:24px; padding:11px 16px; display:flex;
+    align-items:center; gap:8px; color:var(--text-hint); font-size:14px;
+    box-shadow:0 1px 4px rgba(0,0,0,.08); margin-bottom:20px;
+  }
+  .search input{border:none; outline:none; background:transparent; flex:1; font-size:14px; color:var(--text-primary);}
+  /* Section headers */
+  .sec-head{display:flex; justify-content:space-between; align-items:center; margin:6px 0 12px;}
+  .sec-head h3{font-size:16px; color:var(--text-primary); margin:0;}
+  .sec-head span{font-size:12px; color:var(--primary); font-weight:600; cursor:pointer;}
+  /* Categories grid */
+  .cats-row{display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; margin-bottom:22px;}
+  .cats-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .cat-card{
+    background:var(--surface); border-radius:14px; padding:16px 8px; text-align:center;
+    min-width:78px; flex-shrink:0; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.06);
+  }
+  .cat-card .em{font-size:28px;}
+  .cat-card .nm{font-size:12px; font-weight:600; color:var(--text-primary); margin-top:6px;}
+  .cat-card .ct{font-size:10px; color:var(--text-secondary);}
+  /* Product cards */
+  .prod-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .prod-card{
+    background:var(--surface); border-radius:14px; padding:12px; cursor:pointer;
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
+  }
+  .prod-card .em{font-size:40px; text-align:center; margin-bottom:8px;}
+  .prod-card .nm{font-size:13px; font-weight:600; color:var(--text-primary); line-height:1.3; min-height:34px;}
+  .prod-card .rt{font-size:11px; color:var(--text-secondary); margin:4px 0;}
+  .prod-card .pr{font-size:14px; font-weight:700; color:var(--primary);}
+  .prod-list-row{
+    background:var(--surface); border-radius:14px; padding:12px; display:flex; gap:12px;
+    align-items:center; margin-bottom:12px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.06);
+  }
+  .prod-list-row .em{font-size:36px; width:52px; text-align:center;}
+  .prod-list-row .info{flex:1;}
+  .prod-list-row .nm{font-size:14px; font-weight:600; color:var(--text-primary);}
+  .prod-list-row .rt{font-size:11px; color:var(--text-secondary); margin:3px 0;}
+  .prod-list-row .pr{font-size:14px; font-weight:700; color:var(--primary);}
+  /* Bottom nav */
+  .bottomnav{
+    display:flex; background:var(--surface); border-top:1px solid var(--divider);
+    flex-shrink:0; padding:6px 0 10px;
+  }
+  .navitem{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;
+    font-size:10px; color:var(--text-secondary); cursor:pointer; position:relative;
+  }
+  .navitem .ic{font-size:20px;}
+  .navitem.active{color:var(--primary);}
+  .navbadge{
+    position:absolute; top:-2px; right:24%; background:var(--accent); color:#fff;
+    font-size:9px; border-radius:8px; padding:1px 5px; font-weight:700;
+  }
+  /* Product Detail */
+  .pd-hero{background:var(--surface); border-radius:16px; padding:28px; text-align:center; font-size:90px; margin-bottom:16px; position:relative;}
+  .pd-fav{position:absolute; top:12px; right:12px; font-size:22px; cursor:pointer; background:none; border:none;}
+  .pd-qty{display:flex; align-items:center; gap:16px; margin:16px 0;}
+  .pd-qty button{width:36px; height:36px; border-radius:50%; border:1.5px solid var(--primary); background:transparent; color:var(--primary); font-size:18px; cursor:pointer;}
+  .pd-qty span{font-size:16px; font-weight:700; min-width:20px; text-align:center;}
+  /* Cart */
+  .cart-row{background:var(--surface); border-radius:12px; padding:12px; display:flex; gap:12px; align-items:center; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .cart-row .em{font-size:30px; width:44px; text-align:center;}
+  .cart-row .info{flex:1;}
+  .cart-row .nm{font-size:13px; font-weight:600; color:var(--text-primary);}
+  .cart-row .pr{font-size:12px; color:var(--text-secondary);}
+  .qty-mini{display:flex; align-items:center; gap:8px;}
+  .qty-mini button{width:26px; height:26px; border-radius:6px; border:1px solid var(--divider); background:var(--background); cursor:pointer;}
+  .cart-row .rm{color:var(--error); cursor:pointer; font-size:16px; margin-left:6px;}
+  .cart-total-bar{
+    background:var(--surface); padding:16px; border-top:1px solid var(--divider);
+    display:flex; flex-direction:column; gap:10px; flex-shrink:0;
+  }
+  .cart-total-row{display:flex; justify-content:space-between; font-size:16px; font-weight:700; color:var(--text-primary);}
+  .empty-state{display:flex; flex-direction:column; align-items:center; justify-content:center; height:60%; color:var(--text-secondary); text-align:center; gap:8px;}
+  .empty-state .em{font-size:48px;}
+  /* Radio */
+  .radio-row{display:flex; align-items:center; gap:10px; padding:10px 0; font-size:14px; color:var(--text-primary); cursor:pointer;}
+  /* Order success */
+  .success-wrap{display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:32px;}
+  .success-wrap .ck{font-size:64px; color:var(--success);}
+  /* Orders */
+  .order-card{background:var(--surface); border-radius:12px; padding:14px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .order-card .top{display:flex; justify-content:space-between; font-size:13px; font-weight:700; color:var(--text-primary);}
+  .status-pill{font-size:10px; font-weight:700; padding:3px 9px; border-radius:10px; color:#fff;}
+  .status-Delivered{background:var(--success);}
+  .status-Processing{background:var(--warning);}
+  .status-Shipped{background:var(--primary);}
+  .order-card .meta{font-size:11px; color:var(--text-secondary); margin:6px 0;}
+  /* Profile */
+  .profile-head{display:flex; flex-direction:column; align-items:center; padding:20px 0;}
+  .avatar{width:72px; height:72px; border-radius:50%; background:var(--primary-light); display:flex; align-items:center; justify-content:center; font-size:28px; color:var(--primary-dark); font-weight:700;}
+  .profile-name{font-size:17px; font-weight:700; color:var(--text-primary); margin-top:10px;}
+  .profile-email{font-size:12px; color:var(--text-secondary);}
+  .list-item{
+    background:var(--surface); display:flex; align-items:center; gap:12px; padding:14px 16px;
+    border-radius:12px; margin-bottom:8px; cursor:pointer; font-size:14px; color:var(--text-primary);
+  }
+  .list-item .ic{font-size:18px; width:22px;}
+  .list-item .chev{margin-left:auto; color:var(--text-hint);}
+  .switch-row{background:var(--surface); display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-radius:12px; margin-bottom:8px;}
+  .switch{position:relative; width:42px; height:24px; background:var(--divider); border-radius:12px; cursor:pointer; flex-shrink:0;}
+  .switch.on{background:var(--primary);}
+  .switch .knob{position:absolute; top:2px; left:2px; width:20px; height:20px; background:#fff; border-radius:50%; transition:.2s;}
+  .switch.on .knob{left:20px;}
+  /* Toast/snackbar */
+  .snackbar{
+    position:absolute; bottom:78px; left:12px; right:12px; background:#323232; color:#fff;
+    padding:12px 16px; border-radius:8px; font-size:13px; display:flex; justify-content:space-between;
+    align-items:center; opacity:0; transform:translateY(20px); transition:.25s; z-index:60; pointer-events:none;
+  }
+  .snackbar.show{opacity:1; transform:translateY(0);}
+  .snackbar a{color:var(--primary-light); font-weight:700; cursor:pointer; margin-left:12px;}
+  /* Dialog */
+  .overlay{position:absolute; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; z-index:70;}
+  .dialog{background:var(--surface); border-radius:14px; padding:20px; width:80%; max-width:280px;}
+  .dialog h3{margin:0 0 8px; font-size:16px; color:var(--text-primary);}
+  .dialog p{margin:0 0 18px; font-size:13px; color:var(--text-secondary); line-height:1.4;}
+  .dialog .row{display:flex; justify-content:flex-end; gap:16px;}
+  .dialog .row button{background:none; border:none; color:var(--primary); font-weight:700; font-size:13px; cursor:pointer;}
+  .about-logo{font-size:48px; text-align:center; margin:12px 0;}
+  .about-row{display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--divider); font-size:13px;}
+  .about-row span:first-child{color:var(--text-secondary);}
+  .about-row span:last-child{color:var(--text-primary); font-weight:600;}
+</style>
+</head>
+<body>
+<div id="note">Web preview of the VeroShop Android demo — same screens &amp; flow, running in Chrome</div>
+<div class="phone">
+  <div class="notch"></div>
+  <div id="app"></div>
+  <div class="snackbar" id="snackbar"></div>
+</div>
+
+<script>
+// ---------- Mock data (mirrors MockDataManager.java) ----------
+const PRODUCTS = [
+  {id:1,name:"Margherita Pizza",desc:"Classic tomato sauce with mozzarella and fresh basil. A timeless Italian favorite made with the finest ingredients.",price:12.99,rating:4.8,reviews:245,cat:"Pizza",emoji:"🍕"},
+  {id:2,name:"Pepperoni Feast",desc:"Loaded with premium pepperoni slices on a rich tomato base with stretchy mozzarella cheese.",price:14.99,rating:4.7,reviews:189,cat:"Pizza",emoji:"🍕"},
+  {id:3,name:"BBQ Chicken Pizza",desc:"Grilled chicken, BBQ sauce, red onions, and cilantro on a crispy crust.",price:15.99,rating:4.6,reviews:156,cat:"Pizza",emoji:"🍕"},
+  {id:4,name:"Veggie Supreme",desc:"A rainbow of fresh vegetables including bell peppers, mushrooms, olives, and onions.",price:13.49,rating:4.5,reviews:132,cat:"Pizza",emoji:"🍕"},
+  {id:5,name:"Classic Smash Burger",desc:"Double smashed patties with American cheese, pickles, onions, and special sauce.",price:9.99,rating:4.9,reviews:312,cat:"Burger",emoji:"🍔"},
+  {id:6,name:"Spicy Jalapeño Burger",desc:"Crispy fried chicken with fresh jalapeños, pepper jack cheese, and chipotle mayo.",price:10.99,rating:4.7,reviews:201,cat:"Burger",emoji:"🍔"},
+  {id:7,name:"Mushroom Swiss Burger",desc:"Juicy beef patty topped with sautéed mushrooms and melted Swiss cheese.",price:11.49,rating:4.6,reviews:167,cat:"Burger",emoji:"🍔"},
+  {id:8,name:"Veggie Burger",desc:"Black bean and quinoa patty with avocado, lettuce, tomato, and herb aioli.",price:9.49,rating:4.4,reviews:98,cat:"Burger",emoji:"🍔"},
+  {id:9,name:"Fresh Orange Juice",desc:"Cold-pressed oranges squeezed fresh to order. No added sugar or preservatives.",price:4.99,rating:4.8,reviews:178,cat:"Drinks",emoji:"🍊"},
+  {id:10,name:"Mango Smoothie",desc:"Creamy blend of fresh mango, banana, and yogurt topped with chia seeds.",price:5.99,rating:4.9,reviews:223,cat:"Drinks",emoji:"🥭"},
+  {id:11,name:"Iced Matcha Latte",desc:"Premium ceremonial grade matcha whisked with oat milk over ice.",price:5.49,rating:4.6,reviews:145,cat:"Drinks",emoji:"🍵"},
+  {id:12,name:"Classic Cola",desc:"The original refreshing cola served ice cold.",price:2.99,rating:4.3,reviews:89,cat:"Drinks",emoji:"🥤"},
+  {id:13,name:"Chocolate Lava Cake",desc:"Warm chocolate cake with a gooey molten center, served with vanilla ice cream.",price:7.99,rating:4.9,reviews:289,cat:"Dessert",emoji:"🍰"},
+  {id:14,name:"Strawberry Cheesecake",desc:"Creamy New York-style cheesecake with fresh strawberry compote.",price:6.99,rating:4.8,reviews:234,cat:"Dessert",emoji:"🍓"},
+  {id:15,name:"Tiramisu",desc:"Classic Italian dessert with mascarpone, espresso-soaked ladyfingers, and cocoa.",price:6.49,rating:4.7,reviews:198,cat:"Dessert",emoji:"☕"},
+  {id:16,name:"Mango Sorbet",desc:"Light and refreshing dairy-free mango sorbet with a hint of lime.",price:4.49,rating:4.5,reviews:112,cat:"Dessert",emoji:"🍧"},
+];
+const CATEGORIES = [
+  {name:"Pizza",emoji:"🍕",count:4},{name:"Burger",emoji:"🍔",count:4},
+  {name:"Drinks",emoji:"🥤",count:4},{name:"Dessert",emoji:"🍰",count:4},
+];
+function byId(id){ return PRODUCTS.find(p=>p.id===id); }
+
+// ---------- App state ----------
+const S = {
+  screen:'splash',
+  cart:[], // {product, qty}
+  orders:[
+    {id:"#ORD-1001",date:"Jul 10, 2026",items:[{product:byId(1),qty:2},{product:byId(9),qty:1}],total:30.97,status:"Delivered",payment:"Cash"},
+    {id:"#ORD-1002",date:"Jul 15, 2026",items:[{product:byId(5),qty:1},{product:byId(13),qty:1}],total:17.98,status:"Processing",payment:"Credit Card"},
+    {id:"#ORD-1003",date:"Jul 16, 2026",items:[{product:byId(10),qty:2},{product:byId(14),qty:1}],total:18.97,status:"Shipped",payment:"Wallet"},
+  ],
+  session:{loggedIn:false,email:"user@veroshop.com",name:"Demo User",phone:"+1 555 0000",address:"",darkMode:false,notifications:true,langIndex:0},
+  tab:'home', // bottom nav tab
+  productListCat:null, // category filter or null(all)/search
+  searchQuery:'',
+  currentProductId:null,
+  detailQty:1,
+  detailFav:false,
+  dialog:null, // {title, msg, onYes}
+  history:[],
+};
+
+function go(screen, opts){
+  S.history.push(S.screen);
+  Object.assign(S, opts||{});
+  S.screen = screen;
+  render();
+}
+function back(){
+  const prev = S.history.pop();
+  S.screen = prev || 'welcome';
+  render();
+}
+function setTab(tab){ S.tab = tab; S.screen='home_container'; render(); }
+
+function toast(msg, actionLabel, actionFn){
+  const el = document.getElementById('snackbar');
+  el.innerHTML = `<span>${msg}</span>` + (actionLabel? `<a onclick="(${actionFn?actionFn.toString():'()=>{}'})()">${actionLabel}</a>`:'');
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), 2600);
+}
+
+function cartCount(){ return S.cart.reduce((a,c)=>a+c.qty,0); }
+function cartTotal(){ return S.cart.reduce((a,c)=>a+c.qty*c.product.price,0); }
+function addToCart(product, qty){
+  const existing = S.cart.find(c=>c.product.id===product.id);
+  if(existing) existing.qty += qty; else S.cart.push({product, qty});
+}
+function removeFromCart(pid){ S.cart = S.cart.filter(c=>c.product.id!==pid); }
+function updateQty(pid, qty){
+  const it = S.cart.find(c=>c.product.id===pid);
+  if(!it) return;
+  if(qty<=0){ removeFromCart(pid); } else { it.qty = qty; }
+}
+
+// ---------- Validation helpers ----------
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function validateField(id, condition, errId){
+  const wrap = document.getElementById(id).closest('.field');
+  if(condition){ wrap.classList.remove('invalid'); return true; }
+  wrap.classList.add('invalid');
+  return false;
+}
+
+// ---------- Screen renderers ----------
+function render(){
+  document.body.classList.toggle('dark', S.session.darkMode);
+  const app = document.getElementById('app');
+  app.innerHTML = renderScreen();
+  if(S.dialog) renderDialogOverlay();
+}
+
+function renderDialogOverlay(){
+  const app = document.getElementById('app');
+  const d = S.dialog;
+  const div = document.createElement('div');
+  div.className='overlay';
+  div.innerHTML = `<div class="dialog">
+      <h3>${d.title}</h3><p>${d.msg}</p>
+      <div class="row">
+        ${d.showNo!==false? `<button onclick="closeDialog()">${d.noLabel||'CANCEL'}</button>`:''}
+        <button onclick="dialogYes()">${d.yesLabel||'OK'}</button>
+      </div></div>`;
+  app.appendChild(div);
+}
+function closeDialog(){ S.dialog=null; render(); }
+function dialogYes(){ const fn=S.dialog.onYes; S.dialog=null; if(fn) fn(); render(); }
+function openDialog(title,msg,onYes,yesLabel,noLabel,showNo){
+  S.dialog = {title,msg,onYes,yesLabel,noLabel,showNo};
+  render();
+}
+
+function renderScreen(){
+  switch(S.screen){
+    case 'splash': return tplSplash();
+    case 'welcome': return tplWelcome();
+    case 'register': return tplRegister();
+    case 'login': return tplLogin();
+    case 'home_container': return tplHomeContainer();
+    case 'product_list': return tplProductList();
+    case 'product_detail': return tplProductDetail();
+    case 'checkout': return tplCheckout();
+    case 'order_success': return tplOrderSuccess();
+    case 'edit_profile': return tplEditProfile();
+    case 'settings': return tplSettings();
+    case 'about': return tplAbout();
+    default: return tplSplash();
+  }
+}
+
+// Splash
+function tplSplash(){
+  setTimeout(()=>{ if(S.screen==='splash'){ S.screen='welcome'; render(); } }, 2000);
+  return `<div class="screen"><div class="splash">
+    <div class="logo">🛍️</div>
+    <h1>VeroShop</h1>
+    <p>Your one-stop shop</p>
+    <div class="spinner"></div>
+  </div></div>`;
+}
+
+// Welcome
+function tplWelcome(){
+  return `<div class="screen"><div class="welcome">
+    <div class="logo">🛍️</div>
+    <h1>Welcome to VeroShop</h1>
+    <p>Discover amazing products</p>
+    <div class="btns">
+      <button class="btn btn-primary" onclick="go('login')">Login</button>
+      <button class="btn btn-outline" onclick="go('register')">Register</button>
+      <button class="btn btn-text" onclick="guestEnter()">Continue as Guest</button>
+    </div>
+  </div></div>`;
+}
+function guestEnter(){
+  S.session.loggedIn=false;
+  toast("Continuing as guest");
+  setTab('home');
+}
+
+// Register
+function tplRegister(){
+  return `<div class="screen">
+    <div class="toolbar"><span class="back" onclick="back()">←</span> Create Account</div>
+    <div class="content">
+      <div class="field" id="f_first"><label>First Name</label><input id="reg_first"><div class="err">This field is required</div></div>
+      <div class="field" id="f_last"><label>Last Name</label><input id="reg_last"><div class="err">This field is required</div></div>
+      <div class="field" id="f_email"><label>Email Address</label><input id="reg_email" type="email"><div class="err" id="e_email">This field is required</div></div>
+      <div class="field" id="f_phone"><label>Phone Number</label><input id="reg_phone"><div class="err" id="e_phone">This field is required</div></div>
+      <div class="field" id="f_pass"><label>Password</label><input id="reg_pass" type="password"><div class="err" id="e_pass">This field is required</div></div>
+      <div class="field" id="f_confirm"><label>Confirm Password</label><input id="reg_confirm" type="password"><div class="err" id="e_confirm">This field is required</div></div>
+      <label class="checkrow"><input type="checkbox" id="reg_terms"> I accept the Terms and Conditions</label>
+      <button class="btn btn-primary" onclick="attemptRegister()">Create Account</button>
+      <div class="link-row"><a onclick="go('login')">Already have an account? Login</a></div>
+    </div>
+  </div>`;
+}
+function attemptRegister(){
+  const first=document.getElementById('reg_first').value.trim();
+  const last=document.getElementById('reg_last').value.trim();
+  const email=document.getElementById('reg_email').value.trim();
+  const phone=document.getElementById('reg_phone').value.trim();
+  const pass=document.getElementById('reg_pass').value;
+  const confirm=document.getElementById('reg_confirm').value;
+  const terms=document.getElementById('reg_terms').checked;
+  let valid=true;
+  valid = validateField('reg_first', first.length>0) && valid;
+  valid = validateField('reg_last', last.length>0) && valid;
+  const emailOk = email.length>0 && EMAIL_RE.test(email);
+  document.getElementById('e_email').textContent = email.length===0?'This field is required':'Enter a valid email address';
+  valid = validateField('reg_email', emailOk) && valid;
+  const phoneOk = phone.length>=7;
+  document.getElementById('e_phone').textContent = phone.length===0?'This field is required':'Enter a valid phone number';
+  valid = validateField('reg_phone', phoneOk) && valid;
+  const passOk = pass.length>=6;
+  document.getElementById('e_pass').textContent = pass.length===0?'This field is required':'Password must be at least 6 characters';
+  valid = validateField('reg_pass', passOk) && valid;
+  const confirmOk = confirm.length>0 && confirm===pass;
+  document.getElementById('e_confirm').textContent = confirm.length===0?'This field is required':'Passwords do not match';
+  valid = validateField('reg_confirm', confirmOk) && valid;
+  if(!terms){ toast('Please accept the terms and conditions'); valid=false; }
+  if(valid){
+    S.session.email=email; S.session.name=first+" "+last; S.session.phone=phone; S.session.loggedIn=false;
+    toast('Account created! Please login.');
+    go('login');
+  }
+}
+
+// Login
+function tplLogin(){
+  const prefill = (S.session.email && S.session.email!=="user@veroshop.com") ? S.session.email : "";
+  return `<div class="screen">
+    <div class="toolbar"><span class="back" onclick="back()">←</span> Welcome Back</div>
+    <div class="content">
+      <p class="page-sub">Sign in to your account</p>
+      <div class="field" id="f_login_email"><label>Email Address</label><input id="login_email" type="email" value="${prefill}"><div class="err" id="e_login_email">This field is required</div></div>
+      <div class="field" id="f_login_pass"><label>Password</label><input id="login_pass" type="password"><div class="err" id="e_login_pass">This field is required</div></div>
+      <div class="link-row" style="text-align:right; margin-top:-8px;"><a onclick="toast('Password reset link sent to your email!')">Forgot Password?</a></div>
+      <button class="btn btn-primary" style="margin-top:8px;" onclick="attemptLogin()">Sign In</button>
+      <div class="link-row"><a onclick="go('register')">Don't have an account? Register</a></div>
+    </div>
+  </div>`;
+}
+function attemptLogin(){
+  const email=document.getElementById('login_email').value.trim();
+  const pass=document.getElementById('login_pass').value;
+  let valid=true;
+  const emailOk = email.length>0 && EMAIL_RE.test(email);
+  document.getElementById('e_login_email').textContent = email.length===0?'This field is required':'Enter a valid email address';
+  valid = validateField('login_email', emailOk) && valid;
+  const passOk = pass.length>=6;
+  document.getElementById('e_login_pass').textContent = pass.length===0?'This field is required':'Password must be at least 6 characters';
+  valid = validateField('login_pass', passOk) && valid;
+  if(valid){
+    S.session.email=email; S.session.loggedIn=true;
+    toast('Welcome back!');
+    S.history=[];
+    setTab('home');
+  }
+}
+
+// Home container = bottom-nav'd tabs
+function tplHomeContainer(){
+  const tabs = {
+    home: tplHomeTab(), cart: tplCartTab(), orders: tplOrdersTab(), profile: tplProfileTab()
+  };
+  const count = cartCount();
+  return `<div class="screen" style="padding-bottom:0;">
+    <div style="flex:1; overflow-y:auto;">${tabs[S.tab]}</div>
+    <div class="bottomnav">
+      <div class="navitem ${S.tab==='home'?'active':''}" onclick="setTab('home')"><span class="ic">🏠</span>Home</div>
+      <div class="navitem ${S.tab==='cart'?'active':''}" onclick="setTab('cart')">
+        ${count>0?`<span class="navbadge">${count}</span>`:''}
+        <span class="ic">🛒</span>Cart</div>
+      <div class="navitem ${S.tab==='orders'?'active':''}" onclick="setTab('orders')"><span class="ic">📦</span>Orders</div>
+      <div class="navitem ${S.tab==='profile'?'active':''}" onclick="setTab('profile')"><span class="ic">👤</span>Profile</div>
+    </div>
+  </div>`;
+}
+
+function tplHomeTab(){
+  const featured = PRODUCTS.slice(0,6);
+  return `<div class="content">
+    <div class="search" onclick="focusSearch()">
+      <span>🔍</span><input id="home_search" placeholder="Search products…" oninput="onHomeSearch(this.value)" value="${S.searchQuery}">
+    </div>
+    ${S.searchQuery ? renderSearchResults() : `
+    <div class="sec-head"><h3>Categories</h3><span onclick="openProductList(null)">See All</span></div>
+    <div class="cats-row">
+      ${CATEGORIES.map(c=>`<div class="cat-card" onclick="openProductList('${c.name}')">
+        <div class="em">${c.emoji}</div><div class="nm">${c.name}</div><div class="ct">${c.count} items</div>
+      </div>`).join('')}
+    </div>
+    <div class="sec-head"><h3>Featured Products</h3><span onclick="openProductList(null)">See All</span></div>
+    <div class="prod-grid">
+      ${featured.map(p=>prodCardHtml(p)).join('')}
+    </div>`}
+  </div>`;
+}
+function focusSearch(){}
+function onHomeSearch(v){ S.searchQuery=v; render(); setTimeout(()=>{ const el=document.getElementById('home_search'); if(el){el.focus(); el.selectionStart=el.selectionEnd=el.value.length;} },0); }
+function renderSearchResults(){
+  const q=S.searchQuery.toLowerCase();
+  const res = PRODUCTS.filter(p=>p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q));
+  if(res.length===0) return `<div class="empty-state"><div class="em">🔎</div><div>No products found</div></div>`;
+  return `<div class="prod-grid">${res.map(p=>prodCardHtml(p)).join('')}</div>`;
+}
+function prodCardHtml(p){
+  return `<div class="prod-card" onclick="openProductDetail(${p.id})">
+    <div class="em">${p.emoji}</div>
+    <div class="nm">${p.name}</div>
+    <div class="rt">⭐ ${p.rating.toFixed(1)} (${p.reviews})</div>
+    <div class="pr">$${p.price.toFixed(2)}</div>
+  </div>`;
+}
+function openProductList(cat){ go('product_list', {productListCat:cat}); }
+
+function tplProductList(){
+  const cat = S.productListCat;
+  const list = cat ? PRODUCTS.filter(p=>p.cat===cat) : PRODUCTS;
+  return `<div class="screen">
+    <div class="toolbar"><span class="back" onclick="back()">←</span> ${cat || 'All Products'}</div>
+    <div class="content">
+      ${list.map(p=>`<div class="prod-list-row" onclick="openProductDetail(${p.id})">
+        <div class="em">${p.emoji}</div>
+        <div class="info">
+          <div class="nm">${p.name}</div>
+          <div class="rt">⭐ ${p.rating.toFixed(1)} (${p.reviews} reviews)</div>
+          <div class="pr">$${p.price.toFixed(2)}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function openProductDetail(id){
+  S.detailQty=1; S.detailFav=false;
+  go('product_detail', {currentProductId:id});
+}
+function tplProductDetail(){
+  const p = byId(S.currentProductId);
+  return `<div class="screen">
+    <div class="toolbar"><span class="back" onclick="back()">←</span> ${p.name}</div>
+    <div class="content">
+      <div class="pd-hero">
+        <button class="pd-fav" onclick="toggleFav()">${S.detailFav?'❤️':'🤍'}</button>
+        ${p.emoji}
+      </div>
+      <div style="font-size:17px; font-weight:700; color:var(--text-primary);">${p.name}</div>
+      <div style="font-size:20px; font-weight:700; color:var(--primary); margin:6px 0;">$${p.price.toFixed(2)}</div>
+      <div style="font-size:13px; color:var(--text-secondary);">⭐ ${p.rating.toFixed(1)} (${p.reviews} reviews)</div>
+      <div style="font-size:14px; font-weight:700; color:var(--text-primary); margin-top:18px;">Description</div>
+      <p style="font-size:13px; color:var(--text-secondary); line-height:1.5;">${p.desc}</p>
+      <div style="font-size:14px; font-weight:700; color:var(--text-primary); margin-top:6px;">Quantity</div>
+      <div class="pd-qty">
+        <button onclick="changeQty(-1)">−</button>
+        <span id="detail_qty">${S.detailQty}</span>
+        <button onclick="changeQty(1)">+</button>
+      </div>
+      <button class="btn btn-primary" onclick="addToCartFromDetail()">Add to Cart</button>
+    </div>
+  </div>`;
+}
+function toggleFav(){
+  S.detailFav=!S.detailFav;
+  toast(S.detailFav? 'Added to favorites':'Removed from favorites');
+  render();
+}
+function changeQty(d){
+  S.detailQty = Math.max(1, S.detailQty+d);
+  render();
+}
+function addToCartFromDetail(){
+  const p = byId(S.currentProductId);
+  addToCart(p, S.detailQty);
+  toast('Added to cart!', 'VIEW CART', ()=>{ back(); setTab('cart'); });
+}
+
+// Cart tab
+function tplCartTab(){
+  if(S.cart.length===0){
+    return `<div class="content" style="height:100%;">
+      <h2 class="page-title" style="padding:16px 0 0;">My Cart</h2>
+      <div class="empty-state"><div class="em">🛒</div><div>Your cart is empty</div>
+        <button class="btn btn-outline" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="setTab('home')">Continue Shopping</button>
+      </div>
+    </div>`;
+  }
+  return `<div style="display:flex; flex-direction:column; height:100%;">
+    <div class="content" style="flex:1; padding-bottom:4px;">
+      <h2 class="page-title">My Cart</h2>
+      ${S.cart.map(c=>`<div class="cart-row">
+        <div class="em">${c.product.emoji}</div>
+        <div class="info">
+          <div class="nm">${c.product.name}</div>
+          <div class="pr">$${c.product.price.toFixed(2)} each</div>
+          <div class="qty-mini">
+            <button onclick="cartQtyChange(${c.product.id},-1)">−</button>
+            <span>${c.qty}</span>
+            <button onclick="cartQtyChange(${c.product.id},1)">+</button>
+          </div>
+        </div>
+        <span class="rm" onclick="cartRemove(${c.product.id})">🗑</span>
+      </div>`).join('')}
+    </div>
+    <div class="cart-total-bar">
+      <div class="cart-total-row"><span>Total</span><span>$${cartTotal().toFixed(2)}</span></div>
+      <button class="btn btn-primary" onclick="go('checkout')">Checkout</button>
+    </div>
+  </div>`;
+}
+function cartQtyChange(pid,d){
+  const it = S.cart.find(c=>c.product.id===pid);
+  updateQty(pid, it.qty+d);
+  render();
+}
+let lastRemoved=null;
+function cartRemove(pid){
+  const it = S.cart.find(c=>c.product.id===pid);
+  lastRemoved = it;
+  removeFromCart(pid);
+  render();
+  toast('Item removed from cart', 'UNDO', ()=>{ if(lastRemoved){ S.cart.push(lastRemoved); render(); } });
+}
+
+// Checkout
+function tplCheckout(){
+  return `<div class="screen">
+    <div class="toolbar"><span class="back" onclick="back()">←</span> Checkout</div>
+    <div class="content">
+      <div style="font-size:14px; font-weight:700; color:var(--text-primary); margin-bottom:10px;">Delivery Details</div>
+      <div class="field" id="f_co_name"><label>Full Name</label><input id="co_name" value="${S.session.loggedIn?S.session.name:''}"><div class="err">This field is required</div></div>
+      <div class="field" id="f_co_phone"><label>Phone Number</label><input id="co_phone" value="${S.session.loggedIn?S.session.phone:''}"><div class="err">This field is required</div></div>
+      <div class="field" id="f_co_address"><label>Delivery Address</label><input id="co_address" value="${S.session.address||''}"><div class="err">This field is required</div></div>
+      <div class="field" id="f_co_city"><label>City</label><input id="co_city"><div class="err">This field is required</div></div>
+      <div class="field" id="f_co_zip"><label>ZIP Code</label><input id="co_zip"><div class="err">This field is required</div></div>
+      <div style="font-size:14px; font-weight:700; color:var(--text-primary); margin:16px 0 4px;">Payment Method</div>
+      <label class="radio-row"><input type="radio" name="pay" value="Cash" checked> Cash on Delivery</label>
+      <label class="radio-row"><input type="radio" name="pay" value="Credit Card"> Credit Card</label>
+      <label class="radio-row"><input type="radio" name="pay" value="Wallet"> Wallet</label>
+      <div class="cart-total-row" style="margin:16px 0;"><span>Total</span><span>$${cartTotal().toFixed(2)}</span></div>
+      <button class="btn btn-primary" onclick="placeOrder()">Place Order</button>
+    </div>
+  </div>`;
+}
+function placeOrder(){
+  const ids=['co_name','co_phone','co_address','co_city','co_zip'];
+  let valid=true;
+  ids.forEach(id=>{
+    const v = document.getElementById(id).value.trim();
+    valid = validateField(id, v.length>0) && valid;
+  });
+  if(!valid) return;
+  const payment = document.querySelector('input[name="pay"]:checked').value;
+  const orderId = "#ORD-" + (1004 + S.orders.length);
+  S.orders.unshift({id:orderId, date:"Jul 17, 2026", items:S.cart.map(c=>({product:c.product,qty:c.qty})), total:cartTotal(), status:"Processing", payment});
+  S.session.address = document.getElementById('co_address').value.trim();
+  S.cart=[];
+  toast('Order placed!');
+  go('order_success');
+}
+
+function tplOrderSuccess(){
+  const lastOrder = S.orders[0];
+  return `<div class="screen"><div class="success-wrap">
+    <div class="ck">✅</div>
+    <h2 style="color:var(--text-primary); margin:16px 0 4px;">Order Placed!</h2>
+    <p style="color:var(--text-secondary); font-size:13px;">Your order has been successfully placed.</p>
+    <p style="color:var(--text-secondary); font-size:13px; margin-top:4px;">Order ID: <b style="color:var(--text-primary);">${lastOrder.id}</b></p>
+    <button class="btn btn-primary" style="margin-top:24px;" onclick="finishOrderFlow()">Continue Shopping</button>
+  </div></div>`;
+}
+function finishOrderFlow(){ S.history=[]; setTab('home'); }
+
+// Orders tab
+function tplOrdersTab(){
+  if(S.orders.length===0){
+    return `<div class="content"><h2 class="page-title">My Orders</h2><div class="empty-state"><div class="em">📦</div><div>No orders yet</div></div></div>`;
+  }
+  return `<div class="content"><h2 class="page-title">My Orders</h2>
+    ${S.orders.map(o=>`<div class="order-card">
+      <div class="top"><span>${o.id}</span><span class="status-pill status-${o.status}">${o.status}</span></div>
+      <div class="meta">${o.date} • ${o.payment}</div>
+      <div class="meta">${o.items.map(it=>it.product.name+' ×'+it.qty).join(', ')}</div>
+      <div style="font-weight:700; color:var(--text-primary); font-size:14px;">Total: $${o.total.toFixed(2)}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// Profile tab
+function tplProfileTab(){
+  const initials = S.session.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  return `<div class="content">
+    <div class="profile-head">
+      <div class="avatar">${initials}</div>
+      <div class="profile-name">${S.session.name}</div>
+      <div class="profile-email">${S.session.email}</div>
+    </div>
+    <div class="list-item" onclick="go('edit_profile')"><span class="ic">✏️</span>Edit Profile<span class="chev">›</span></div>
+    <div class="list-item" onclick="openChangePasswordDialog()"><span class="ic">🔒</span>Change Password<span class="chev">›</span></div>
+    <div class="list-item" onclick="go('settings')"><span class="ic">⚙️</span>Settings<span class="chev">›</span></div>
+    <div class="list-item" onclick="openLogoutDialog()"><span class="ic">🚪</span>Logout<span class="chev">›</span></div>
+  </div>`;
+}
+function openChangePasswordDialog(){
+  openDialog('Change Password','A password reset link would be sent to your email in a real app.', null, 'OK', null, false);
+}
+function openLogoutDialog(){
+  openDialog('Logout','Are you sure you want to logout?', ()=>{
+    S.session.loggedIn=false;
+    S.history=[];
+    S.screen='welcome';
+  }, 'Yes','No', true);
+}
+
+// Edit profile
+function tplEditProfile(){
+  return `<div class="screen">
+    <div class="toolbar"><span class="back" onclick="back()">←</span> Edit Profile</div>
+    <div class="content">
+      <div class="field"><label>Full Name</label><input id="ep_name" value="${S.session.name}"></div>
+      <div class="field"><label>Phone Number</label><input id="ep_phone" value="${S.session.phone}"></div>
+      <div class="field"><label>Address</label><input id="ep_address" value="${S.session.address||''}"></div>
+      <button class="btn btn-primary" onclick="saveProfile()">Save</button>
+    </div>
+  </div>`;
+}
+function saveProfile(){
+  S.session.name = document.getElementById('ep_name').value.trim() || S.session.name;
+  S.session.phone = document.getElementById('ep_phone').value.trim();
+  S.session.address = document.getElementById('ep_address').value.trim();
+  toast('Profile saved successfully!');
+  back();
+}
+
+// Settings
+function tplSettings(){
+  const langs=["English","Arabic","French","Spanish"];
+  return `<div class="screen">
+    <div class="toolbar"><span class="back" onclick="back()">←</span> Settings</div>
+    <div class="content">
+      <div class="switch-row">Dark Mode <div class="switch ${S.session.darkMode?'on':''}" onclick="toggleDark()"><div class="knob"></div></div></div>
+      <div class="switch-row">Notifications <div class="switch ${S.session.notifications?'on':''}" onclick="toggleNotif()"><div class="knob"></div></div></div>
+      <div class="list-item">Language
+        <select id="lang_select" style="margin-left:auto; border:none; background:transparent; color:var(--primary); font-weight:600;" onchange="setLang(this.selectedIndex)">
+          ${langs.map((l,i)=>`<option ${i===S.session.langIndex?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </div>
+      <div class="list-item" onclick="go('about')"><span class="ic">ℹ️</span>About<span class="chev">›</span></div>
+      <div class="list-item" onclick="openPrivacyDialog()"><span class="ic">📄</span>Privacy Policy<span class="chev">›</span></div>
+    </div>
+  </div>`;
+}
+function toggleDark(){ S.session.darkMode=!S.session.darkMode; render(); }
+function toggleNotif(){ S.session.notifications=!S.session.notifications; render(); }
+function setLang(i){ S.session.langIndex=i; }
+function openPrivacyDialog(){
+  openDialog('Privacy Policy','This app is a demo application for VeroFlow automated testing. No real user data is collected or transmitted.', null, 'OK', null, false);
+}
+
+// About
+function tplAbout(){
+  return `<div class="screen">
+    <div class="toolbar"><span class="back" onclick="back()">←</span> About VeroShop</div>
+    <div class="content">
+      <div class="about-logo">🛍️</div>
+      <p style="text-align:center; font-size:13px; color:var(--text-secondary); line-height:1.5;">VeroShop Demo is a sample application built for VeroFlow automated mobile testing system. It showcases common Android UI patterns including navigation, forms, lists, dialogs, and settings.</p>
+      <div class="about-row"><span>App Version</span><span>1.0.0</span></div>
+      <div class="about-row"><span>Build Number</span><span>2026071701</span></div>
+      <div class="about-row"><span>Developer</span><span>VeroFlow Team</span></div>
+    </div>
+  </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
